@@ -5,18 +5,19 @@
 package agent
 
 import (
-	"bytes"
 	"context"
 	"log"
 	"strings"
 
 	atlas "github.com/explore-dev/atlas-common/go/api/services"
 	"github.com/google/go-github/v42/github"
+	"github.com/reviewpad/action/v3/utils"
 	"github.com/reviewpad/host-event-handler/handler"
 	reviewpad_premium "github.com/reviewpad/reviewpad-premium/v3"
 	"github.com/reviewpad/reviewpad/v3"
 	"github.com/reviewpad/reviewpad/v3/collector"
 	"github.com/reviewpad/reviewpad/v3/engine"
+	reviewpad_utils "github.com/reviewpad/reviewpad/v3/utils"
 	"github.com/shurcooL/githubv4"
 	"golang.org/x/oauth2"
 	"google.golang.org/grpc"
@@ -73,77 +74,72 @@ func runReviewpad(prNum int, e *handler.ActionEvent, semanticEndpoint string, fi
 		return
 	}
 
-	if err := validateBranch(pullRequest.Base); err != nil {
+	if err := utils.ValidateBranch(pullRequest.Base); err != nil {
 		log.Fatalln(err)
 	}
 
-	if err := validateBranch(pullRequest.Head); err != nil {
+	if err := utils.ValidateBranch(pullRequest.Head); err != nil {
 		log.Fatalln(err)
 	}
 
-	rawBaseFile, err := downloadReviewPadFile(ctx, filePath, client, pullRequest.Base)
-	if err != nil {
-		log.Println(err.Error())
-		return
-	}
+	files, err := reviewpad_utils.GetPullRequestFiles(ctx, client, repoOwner, repoName, *pullRequest.Number)
 
-	rawHeadFile, err := downloadReviewPadFile(ctx, filePath, client, pullRequest.Head)
-	if err != nil {
-		log.Println(err.Error())
-		return
-	}
+	reviewpadFileChanged := false
 
 	var collectorClient collector.Collector
 
-	var reviewPadFile *engine.ReviewpadFile
+	var reviewpadFile *engine.ReviewpadFile
 
-	reviewPadFilesMatch := bytes.Equal(rawBaseFile, rawHeadFile)
+	if err != nil {
+		log.Fatalln(err)
+	}
 
-	dryRun := !reviewPadFilesMatch
+	for _, file := range files {
+		if filePath == *file.Filename {
+			reviewpadFileChanged = true
+			break
+		}
+	}
 
-	if reviewPadFilesMatch {
+	dryRun := reviewpadFileChanged
 
+	if reviewpadFileChanged {
 		baseRepoOwner := *pullRequest.Base.Repo.Owner.Login
 
 		collectorClient = collector.NewCollector(MixpanelToken, baseRepoOwner)
 
-		if reviewPadFile, err = loadReviewPadFile(rawBaseFile); err != nil {
+		if reviewpadFile, err = utils.LoadReviewpadFile(ctx, filePath, client, pullRequest.Head); err != nil {
 			log.Fatalln(err)
 		}
-
 	} else {
-
 		headRepoOwner := *pullRequest.Base.Repo.Owner.Login
 
 		collectorClient = collector.NewCollector(MixpanelToken, headRepoOwner)
 
-		if reviewPadFile, err = loadReviewPadFile(rawHeadFile); err != nil {
+		if reviewpadFile, err = utils.LoadReviewpadFile(ctx, filePath, client, pullRequest.Base); err != nil {
 			log.Fatalln(err)
 		}
-
 	}
 
-	switch reviewPadFile.Edition {
+	switch reviewpadFile.Edition {
 	case engine.PROFESSIONAL_EDITION:
-		err = runReviewpadPremium(ctx, env, client, clientGQL, collectorClient, pullRequest, eventPayload, reviewPadFile, dryRun)
+		err = runReviewpadPremium(ctx, env, client, clientGQL, collectorClient, pullRequest, eventPayload, reviewpadFile, dryRun)
 	default:
-		_, err = reviewpad.Run(ctx, client, clientGQL, collectorClient, pullRequest, eventPayload, reviewPadFile, dryRun)
+		_, err = reviewpad.Run(ctx, client, clientGQL, collectorClient, pullRequest, eventPayload, reviewpadFile, dryRun, reviewpadFileChanged)
 	}
 
 	if err != nil {
-
-		if reviewPadFile.IgnoreErrors {
+		if reviewpadFile.IgnoreErrors {
 			log.Println(err.Error())
 			return
 		}
 
 		log.Fatalln(err.Error())
-
 	}
 
 }
 
-// reviewpad-an: critical
+// // reviewpad-an: critical
 func runReviewpadPremium(
 	ctx context.Context,
 	env *Env,
