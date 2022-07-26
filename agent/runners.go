@@ -17,7 +17,6 @@ import (
 	"github.com/reviewpad/reviewpad/v3"
 	"github.com/reviewpad/reviewpad/v3/collector"
 	"github.com/reviewpad/reviewpad/v3/engine"
-	reviewpad_utils "github.com/reviewpad/reviewpad/v3/utils"
 	"github.com/shurcooL/githubv4"
 	"golang.org/x/oauth2"
 	"google.golang.org/grpc"
@@ -82,24 +81,14 @@ func runReviewpad(prNum int, e *handler.ActionEvent, semanticEndpoint string, fi
 		log.Fatalln(err)
 	}
 
-	files, err := reviewpad_utils.GetPullRequestFiles(ctx, client, repoOwner, repoName, *pullRequest.Number)
-
-	reviewpadFileChanged := false
-
-	var collectorClient collector.Collector
-
-	var reviewpadFile *engine.ReviewpadFile
-
+	reviewpadFileChanged, err := utils.ReviewpadFileChanged(ctx, filePath, client, pullRequest)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	for _, file := range files {
-		if filePath == *file.Filename {
-			reviewpadFileChanged = true
-			break
-		}
-	}
+	var collectorClient collector.Collector
+
+	var reviewpadFile *engine.ReviewpadFile
 
 	dryRun := reviewpadFileChanged
 
@@ -123,6 +112,7 @@ func runReviewpad(prNum int, e *handler.ActionEvent, semanticEndpoint string, fi
 
 	switch reviewpadFile.Edition {
 	case engine.PROFESSIONAL_EDITION:
+		// TODO: update reviewpad premium to account for reviewpad file change
 		err = runReviewpadPremium(ctx, env, client, clientGQL, collectorClient, pullRequest, eventPayload, reviewpadFile, dryRun)
 	default:
 		_, err = reviewpad.Run(ctx, client, clientGQL, collectorClient, pullRequest, eventPayload, reviewpadFile, dryRun, reviewpadFileChanged)
