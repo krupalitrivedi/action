@@ -11,7 +11,6 @@ import (
 )
 
 func TestValidateBranch(t *testing.T) {
-
 	tests := []struct {
 		name    string
 		arg     *github.PullRequestBranch
@@ -94,5 +93,4 @@ func TestValidateBranch(t *testing.T) {
 			}
 		})
 	}
-
 }
