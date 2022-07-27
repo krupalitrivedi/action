@@ -61,8 +61,8 @@ func ReviewpadFileChanged(ctx context.Context, filePath string, client *github.C
 		return !bytes.Equal(rawBaseFile, rawHeadFile), nil
 	}
 
-	branchRepoOwner := *pullRequest.Head.Repo.Owner.Login
-	branchRepoName := *pullRequest.Head.Repo.Name
+	branchRepoOwner := *pullRequest.Base.Repo.Owner.Login
+	branchRepoName := *pullRequest.Base.Repo.Name
 
 	files, err := reviewpad_utils.GetPullRequestFiles(ctx, client, branchRepoOwner, branchRepoName, *pullRequest.Number)
 	if err != nil {
