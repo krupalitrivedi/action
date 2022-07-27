@@ -52,7 +52,7 @@ func ReviewpadFileChanged(ctx context.Context, filePath string, client *github.C
 
 		rawBaseFile, err := downloadReviewPadFile(ctx, filePath, client, pullRequest.Base)
 		if err != nil {
-			if strings.Contains(err.Error(), "no file named") {
+			if strings.HasPrefix(err.Error(), "no file named") {
 				return true, nil
 			}
 			return false, err
