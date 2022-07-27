@@ -26,7 +26,7 @@ func downloadReviewPadFile(ctx context.Context, filePath string, client *github.
 	})
 
 	if err != nil {
-		return []byte{}, err
+		return nil, err
 	}
 
 	return ioutil.ReadAll(ioReader)
