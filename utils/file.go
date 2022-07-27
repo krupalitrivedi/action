@@ -8,6 +8,7 @@ import (
 	"bytes"
 	"context"
 	"io/ioutil"
+	"strings"
 
 	"github.com/google/go-github/v42/github"
 	"github.com/reviewpad/reviewpad/v3"
@@ -51,6 +52,9 @@ func ReviewpadFileChanged(ctx context.Context, filePath string, client *github.C
 
 		rawBaseFile, err := downloadReviewPadFile(ctx, filePath, client, pullRequest.Base)
 		if err != nil {
+			if strings.Contains(err.Error(), "no file named") {
+				return true, nil
+			}
 			return false, err
 		}
 
