@@ -41,3 +41,8 @@ tasks:
       - test
     cmds:
       - go tool cover -html=coverage.out
+
+  check:
+    deps:
+      - build
+      - test
