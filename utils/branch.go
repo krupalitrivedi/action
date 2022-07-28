@@ -6,8 +6,6 @@ package utils
 
 import "github.com/google/go-github/v42/github"
 
-// ValidateBranch validates a github.PullRequestBranch
-// and returns an error if it is invalid.
 func ValidateBranch(branch *github.PullRequestBranch) error {
 	if branch == nil {
 		return ErrBranchNil

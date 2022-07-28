@@ -6,8 +6,8 @@ require (
 	github.com/explore-dev/atlas-common/go v0.0.0-20220509090605-a2bc1701df68
 	github.com/google/go-github/v42 v42.0.0
 	github.com/reviewpad/host-event-handler v0.0.1
-	github.com/reviewpad/reviewpad-premium/v3 v3.0.1-0.20220726111217-c061d885a323
-	github.com/reviewpad/reviewpad/v3 v3.0.1-0.20220726110753-ad82c7b6efd6
+	github.com/reviewpad/reviewpad-premium/v3 v3.0.1-0.20220728110935-acf5f33ca49d
+	github.com/reviewpad/reviewpad/v3 v3.0.1-0.20220728103411-6f87d87713e3
 	github.com/shurcooL/githubv4 v0.0.0-20220520033151-0b4e3294ff00
 	golang.org/x/oauth2 v0.0.0-20220718184931-c8730f7fcb92
 	google.golang.org/grpc v1.48.0

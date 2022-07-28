@@ -86,34 +86,26 @@ func runReviewpad(prNum int, e *handler.ActionEvent, semanticEndpoint string, fi
 		log.Fatalln(err)
 	}
 
-	var collectorClient collector.Collector
-
 	var reviewpadFile *engine.ReviewpadFile
 
-	dryRun := reviewpadFileChanged
-
 	if reviewpadFileChanged {
-		baseRepoOwner := *pullRequest.Base.Repo.Owner.Login
-
-		collectorClient = collector.NewCollector(MixpanelToken, baseRepoOwner)
-
 		if reviewpadFile, err = utils.LoadReviewpadFile(ctx, filePath, client, pullRequest.Head); err != nil {
 			log.Fatalln(err)
 		}
 	} else {
-		headRepoOwner := *pullRequest.Base.Repo.Owner.Login
-
-		collectorClient = collector.NewCollector(MixpanelToken, headRepoOwner)
-
 		if reviewpadFile, err = utils.LoadReviewpadFile(ctx, filePath, client, pullRequest.Base); err != nil {
 			log.Fatalln(err)
 		}
 	}
 
+	dryRun := reviewpadFileChanged
+
+	baseRepoOwner := *pullRequest.Base.Repo.Owner.Login
+	collectorClient := collector.NewCollector(MixpanelToken, baseRepoOwner)
+
 	switch reviewpadFile.Edition {
 	case engine.PROFESSIONAL_EDITION:
-		// TODO: update reviewpad premium to account for reviewpad file change
-		err = runReviewpadPremium(ctx, env, client, clientGQL, collectorClient, pullRequest, eventPayload, reviewpadFile, dryRun)
+		_, err = runReviewpadPremium(ctx, env, client, clientGQL, collectorClient, pullRequest, eventPayload, reviewpadFile, dryRun, reviewpadFileChanged)
 	default:
 		_, err = reviewpad.Run(ctx, client, clientGQL, collectorClient, pullRequest, eventPayload, reviewpadFile, dryRun, reviewpadFileChanged)
 	}
@@ -129,7 +121,7 @@ func runReviewpad(prNum int, e *handler.ActionEvent, semanticEndpoint string, fi
 
 }
 
-// // reviewpad-an: critical
+// reviewpad-an: critical
 func runReviewpadPremium(
 	ctx context.Context,
 	env *Env,
@@ -140,7 +132,8 @@ func runReviewpadPremium(
 	eventPayload interface{},
 	reviewpadFile *engine.ReviewpadFile,
 	dryRun bool,
-) error {
+	reviewpadFileChanged bool,
+) (*engine.Program, error) {
 	defaultOptions := grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(419430400))
 	semanticConnection, err := grpc.Dial(env.SemanticEndpoint, grpc.WithInsecure(), defaultOptions)
 	if err != nil {
@@ -149,7 +142,7 @@ func runReviewpadPremium(
 	defer semanticConnection.Close()
 	semanticClient := atlas.NewSemanticClient(semanticConnection)
 
-	return reviewpad_premium.Run(ctx, client, clientGQL, collector, semanticClient, ghPullRequest, eventPayload, reviewpadFile, dryRun)
+	return reviewpad_premium.Run(ctx, client, clientGQL, collector, semanticClient, ghPullRequest, eventPayload, reviewpadFile, dryRun, reviewpadFileChanged)
 }
 
 // reviewpad-an: critical
