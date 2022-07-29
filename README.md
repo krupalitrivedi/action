@@ -46,7 +46,7 @@ workflows:
           - $addLabel("small")
       - rule: is-medium
         extra-actions:
-          - $addLabel("medizum")
+          - $addLabel("medium")
       - rule: is-large
         extra-actions:
           - $addLabel("large")
