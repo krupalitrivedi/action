@@ -103,8 +103,8 @@ github.com/reviewpad/go-conventionalcommits v0.10.0 h1:49Fv1q5vougqA7g5mpFZ+W5sQ
 github.com/reviewpad/go-conventionalcommits v0.10.0/go.mod h1:NWUK2G+V+KrhmHW2fBAWGEgZFW8jUXqqBkm9mYJJNi4=
 github.com/reviewpad/host-event-handler v0.0.1 h1:zUoFXQZNxTfknv7fBbv85ixyIq8+Cl41baj2QFQcdZQ=
 github.com/reviewpad/host-event-handler v0.0.1/go.mod h1:QTpoGZHB9zghjrT8+S5/xerNPqVK2rVfgS87Rp+5Idw=
-github.com/reviewpad/reviewpad-premium/v3 v3.0.1-0.20220801134903-8b7cbefc99ca h1:6GpIyKbW6hChhbl4Nzezb+1FfmSbHCSUzzMSP2BV4Yo=
-github.com/reviewpad/reviewpad-premium/v3 v3.0.1-0.20220801134903-8b7cbefc99ca/go.mod h1:WGggwJByON12JjLYDjBPFWijN7GBBvi0pwZ6L+5yIOA=
+github.com/reviewpad/reviewpad-premium/v3 v3.0.1-0.20220801135832-a1bd7901483f h1:2pncUyv1ma/EVxW5VB67gwRhMbcIR+XwrVgqMY6mi0I=
+github.com/reviewpad/reviewpad-premium/v3 v3.0.1-0.20220801135832-a1bd7901483f/go.mod h1:WGggwJByON12JjLYDjBPFWijN7GBBvi0pwZ6L+5yIOA=
 github.com/reviewpad/reviewpad/v3 v3.0.1-0.20220801130805-621d3852d5bb h1:zyFGEH5yFDu5HbYZvceyZ6Jesf3l6C7CJ2ikbIsAfdM=
 github.com/reviewpad/reviewpad/v3 v3.0.1-0.20220801130805-621d3852d5bb/go.mod h1:nkWeV6GrY5ad5nydHfxb7ZTcg3Kma6jTaq6mBJbqFe0=
 github.com/rogpeppe/fastuuid v1.2.0/go.mod h1:jVj6XXZzXRy/MSR5jhDC/2q6DgLz+nrA6LYCDYWNEvQ=
