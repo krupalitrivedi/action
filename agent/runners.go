@@ -22,8 +22,6 @@ import (
 	"google.golang.org/grpc"
 )
 
-var MixpanelToken string
-
 type Env struct {
 	RepoOwner        string
 	RepoName         string
@@ -34,7 +32,7 @@ type Env struct {
 }
 
 // reviewpad-an: critical
-func runReviewpad(prNum int, e *handler.ActionEvent, semanticEndpoint string, filePath string) {
+func runReviewpad(prNum int, e *handler.ActionEvent, semanticEndpoint string, mixpanelToken string, filePath string) {
 	repo := *e.Repository
 	splittedRepo := strings.Split(repo, "/")
 	repoOwner := splittedRepo[0]
@@ -101,7 +99,7 @@ func runReviewpad(prNum int, e *handler.ActionEvent, semanticEndpoint string, fi
 	dryRun := reviewpadFileChanged
 
 	baseRepoOwner := *pullRequest.Base.Repo.Owner.Login
-	collectorClient := collector.NewCollector(MixpanelToken, baseRepoOwner)
+	collectorClient := collector.NewCollector(mixpanelToken, baseRepoOwner)
 
 	switch reviewpadFile.Edition {
 	case engine.PROFESSIONAL_EDITION:
@@ -146,7 +144,7 @@ func runReviewpadPremium(
 }
 
 // reviewpad-an: critical
-func RunAction(semanticEndpoint, rawEvent, token, file string) {
+func RunAction(semanticEndpoint, gitHubToken, mixpanelToken, rawEvent, file string) {
 	event, err := handler.ParseEvent(rawEvent)
 	if err != nil {
 		log.Print(err)
@@ -155,9 +153,9 @@ func RunAction(semanticEndpoint, rawEvent, token, file string) {
 
 	prs := handler.ProcessEvent(event)
 
-	event.Token = &token
+	event.Token = &gitHubToken
 
 	for _, pr := range prs {
-		runReviewpad(pr, event, semanticEndpoint, file)
+		runReviewpad(pr, event, semanticEndpoint, mixpanelToken, file)
 	}
 }

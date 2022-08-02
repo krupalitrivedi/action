@@ -11,26 +11,36 @@ import (
 	"github.com/reviewpad/action/v3/agent"
 )
 
-func main() {
-	semanticEndpoint, ok := os.LookupEnv("SEMANTIC_SERVICE_ENDPOINT")
-	if !ok {
-		log.Fatal("missing semantic service endpoint")
+var (
+	semanticEndpoint,
+	rawEvent,
+	file,
+	gitHubToken,
+	MixpanelToken string
+)
+
+func init() {
+	semanticEndpoint = os.Getenv("SEMANTIC_ENDPOINT")
+	if semanticEndpoint == "" {
+		log.Fatal("missing SEMANTIC_ENDPOINT")
 	}
 
-	rawEvent, ok := os.LookupEnv("INPUT_EVENT")
-	if !ok {
+	rawEvent := os.Getenv("INPUT_EVENT")
+	if rawEvent == "" {
 		log.Fatal("missing variable INPUT_EVENT")
 	}
 
-	token, ok := os.LookupEnv("INPUT_TOKEN")
-	if !ok {
-		log.Fatal("missing variable INPUT_TOKEN")
-	}
-
-	file, ok := os.LookupEnv("INPUT_FILE")
-	if !ok {
+	file := os.Getenv("INPUT_FILE")
+	if file == "" {
 		log.Fatal("missing variable INPUT_FILE")
 	}
 
-	agent.RunAction(semanticEndpoint, rawEvent, token, file)
+	gitHubToken := os.Getenv("INPUT_TOKEN")
+	if gitHubToken == "" {
+		log.Fatal("missing variable INPUT_TOKEN")
+	}
+}
+
+func main() {
+	agent.RunAction(semanticEndpoint, gitHubToken, MixpanelToken, rawEvent, file)
 }
