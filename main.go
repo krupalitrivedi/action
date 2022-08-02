@@ -20,22 +20,22 @@ var (
 )
 
 func init() {
-	semanticEndpoint = os.Getenv("SEMANTIC_ENDPOINT")
+	semanticEndpoint = os.Getenv("SEMANTIC_SERVICE_ENDPOINT")
 	if semanticEndpoint == "" {
-		log.Fatal("missing SEMANTIC_ENDPOINT")
+		log.Fatal("missing SEMANTIC_SERVICE_ENDPOINT")
 	}
 
-	rawEvent := os.Getenv("INPUT_EVENT")
+	rawEvent = os.Getenv("INPUT_EVENT")
 	if rawEvent == "" {
 		log.Fatal("missing variable INPUT_EVENT")
 	}
 
-	file := os.Getenv("INPUT_FILE")
+	file = os.Getenv("INPUT_FILE")
 	if file == "" {
 		log.Fatal("missing variable INPUT_FILE")
 	}
 
-	gitHubToken := os.Getenv("INPUT_TOKEN")
+	gitHubToken = os.Getenv("INPUT_TOKEN")
 	if gitHubToken == "" {
 		log.Fatal("missing variable INPUT_TOKEN")
 	}
