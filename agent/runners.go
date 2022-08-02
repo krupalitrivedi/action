@@ -147,11 +147,15 @@ func runReviewpadPremium(
 func RunAction(semanticEndpoint, gitHubToken, mixpanelToken, rawEvent, file string) {
 	event, err := handler.ParseEvent(rawEvent)
 	if err != nil {
-		log.Print(err)
+		log.Printf("error parsing event: %v", err)
 		return
 	}
 
-	prs := handler.ProcessEvent(event)
+	prs, err := handler.ProcessEvent(event)
+	if err != nil {
+		log.Printf("error processing event: %v", err)
+		return
+	}
 
 	event.Token = &gitHubToken
 
