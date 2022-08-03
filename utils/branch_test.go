@@ -7,7 +7,7 @@ package utils
 import (
 	"testing"
 
-	"github.com/google/go-github/v42/github"
+	"github.com/google/go-github/v45/github"
 )
 
 func TestValidateBranch(t *testing.T) {
