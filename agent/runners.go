@@ -101,11 +101,12 @@ func runReviewpad(prNum int, e *handler.ActionEvent, semanticEndpoint string, mi
 	baseRepoOwner := *pullRequest.Base.Repo.Owner.Login
 	collectorClient := collector.NewCollector(mixpanelToken, baseRepoOwner)
 
+	var exitStatus engine.ExitStatus
 	switch reviewpadFile.Edition {
 	case engine.PROFESSIONAL_EDITION:
-		_, err = runReviewpadPremium(ctx, env, client, clientGQL, collectorClient, pullRequest, eventPayload, reviewpadFile, dryRun, reviewpadFileChanged)
+		exitStatus, err = runReviewpadPremium(ctx, env, client, clientGQL, collectorClient, pullRequest, eventPayload, reviewpadFile, dryRun, reviewpadFileChanged)
 	default:
-		_, err = reviewpad.Run(ctx, client, clientGQL, collectorClient, pullRequest, eventPayload, reviewpadFile, dryRun, reviewpadFileChanged)
+		exitStatus, err = reviewpad.Run(ctx, client, clientGQL, collectorClient, pullRequest, eventPayload, reviewpadFile, dryRun, reviewpadFileChanged)
 	}
 
 	if err != nil {
@@ -117,6 +118,9 @@ func runReviewpad(prNum int, e *handler.ActionEvent, semanticEndpoint string, mi
 		log.Fatalln(err.Error())
 	}
 
+	if exitStatus == engine.ExitStatusFailure {
+		log.Fatal("The executed program exited with code 1")
+	}
 }
 
 // reviewpad-an: critical
@@ -131,7 +135,7 @@ func runReviewpadPremium(
 	reviewpadFile *engine.ReviewpadFile,
 	dryRun bool,
 	reviewpadFileChanged bool,
-) (*engine.Program, error) {
+) (engine.ExitStatus, error) {
 	defaultOptions := grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(419430400))
 	semanticConnection, err := grpc.Dial(env.SemanticEndpoint, grpc.WithInsecure(), defaultOptions)
 	if err != nil {
