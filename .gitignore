@@ -19,6 +19,8 @@ action-cli
 
 # IDEA
 .vscode
+.idea
 
 # OS
 .DS_store
+

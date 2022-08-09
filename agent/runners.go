@@ -32,7 +32,7 @@ type Env struct {
 }
 
 // reviewpad-an: critical
-func runReviewpad(prNum int, e *handler.ActionEvent, semanticEndpoint string, mixpanelToken string, filePath string) {
+func runReviewpad(prNum int, e *handler.ActionEvent, semanticEndpoint string, mixpanelToken string, filePath, fileUrl string) {
 	repo := *e.Repository
 	splittedRepo := strings.Split(repo, "/")
 	repoOwner := splittedRepo[0]
@@ -79,20 +79,33 @@ func runReviewpad(prNum int, e *handler.ActionEvent, semanticEndpoint string, mi
 		log.Fatalln(err)
 	}
 
-	reviewpadFileChanged, err := utils.ReviewpadFileChanged(ctx, filePath, client, pullRequest)
-	if err != nil {
-		log.Fatalln(err)
-	}
-
+	var reviewpadFileChanged bool
 	var reviewpadFile *engine.ReviewpadFile
 
-	if reviewpadFileChanged {
-		if reviewpadFile, err = utils.LoadReviewpadFile(ctx, filePath, client, pullRequest.Head); err != nil {
+	if fileUrl != "" {
+		log.Printf("using remote config file %s", fileUrl)
+		branch, filePath, err := utils.ValidateUrl(fileUrl)
+		if err != nil {
+			log.Fatalln(err)
+		}
+		if reviewpadFile, err = utils.LoadReviewpadFile(ctx, filePath, client, branch); err != nil {
 			log.Fatalln(err)
 		}
 	} else {
-		if reviewpadFile, err = utils.LoadReviewpadFile(ctx, filePath, client, pullRequest.Base); err != nil {
+		log.Printf("using local config file %s", filePath)
+		reviewpadFileChanged, err := utils.ReviewpadFileChanged(ctx, filePath, client, pullRequest)
+		if err != nil {
 			log.Fatalln(err)
+		}
+
+		if reviewpadFileChanged {
+			if reviewpadFile, err = utils.LoadReviewpadFile(ctx, filePath, client, pullRequest.Head); err != nil {
+				log.Fatalln(err)
+			}
+		} else {
+			if reviewpadFile, err = utils.LoadReviewpadFile(ctx, filePath, client, pullRequest.Base); err != nil {
+				log.Fatalln(err)
+			}
 		}
 	}
 
@@ -148,8 +161,9 @@ func runReviewpadPremium(
 }
 
 // reviewpad-an: critical
-func RunAction(semanticEndpoint, gitHubToken, mixpanelToken, rawEvent, file string) {
+func RunAction(semanticEndpoint, gitHubToken, mixpanelToken, rawEvent, file, fileUrl string) {
 	event, err := handler.ParseEvent(rawEvent)
+
 	if err != nil {
 		log.Printf("error parsing event: %v", err)
 		return
@@ -164,6 +178,6 @@ func RunAction(semanticEndpoint, gitHubToken, mixpanelToken, rawEvent, file stri
 	event.Token = &gitHubToken
 
 	for _, pr := range prs {
-		runReviewpad(pr, event, semanticEndpoint, mixpanelToken, file)
+		runReviewpad(pr, event, semanticEndpoint, mixpanelToken, file, fileUrl)
 	}
 }

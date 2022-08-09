@@ -9,12 +9,14 @@ require (
 	github.com/reviewpad/reviewpad-premium/v3 v3.1.1-0.20220809100101-0cb6d85d9fb8
 	github.com/reviewpad/reviewpad/v3 v3.1.1-0.20220809093712-0789a5fed306
 	github.com/shurcooL/githubv4 v0.0.0-20220520033151-0b4e3294ff00
+	github.com/stretchr/testify v1.8.0
 	golang.org/x/oauth2 v0.0.0-20220718184931-c8730f7fcb92
 	google.golang.org/grpc v1.48.0
 )
 
 require (
 	github.com/bmatcuk/doublestar/v4 v4.2.0 // indirect
+	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dukex/mixpanel v1.0.1 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/go-github/v41 v41.0.0 // indirect
@@ -23,6 +25,7 @@ require (
 	github.com/gorilla/mux v1.8.0 // indirect
 	github.com/kr/text v0.2.0 // indirect
 	github.com/migueleliasweb/go-github-mock v0.0.10 // indirect
+	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/reviewpad/go-conventionalcommits v0.10.0 // indirect
 	github.com/shurcooL/graphql v0.0.0-20220606043923-3cf50f8a0a29 // indirect
 	github.com/sirupsen/logrus v1.9.0 // indirect

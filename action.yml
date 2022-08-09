@@ -9,8 +9,12 @@ inputs:
     default: ${{ toJSON(github) }}
     required: false
   file:
-    description: "Reviewpad configuration file"
+    description: "Local reviewpad configuration file"
     default: "reviewpad.yml"
+    required: false
+  file_url:
+    description: "Remote reviewpad configuration file"
+    default: ""
     required: false
   token:
     description: >

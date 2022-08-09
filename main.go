@@ -15,6 +15,7 @@ var (
 	semanticEndpoint,
 	rawEvent,
 	file,
+	fileUrl,
 	gitHubToken,
 	MixpanelToken string
 )
@@ -30,17 +31,18 @@ func init() {
 		log.Fatal("missing variable INPUT_EVENT")
 	}
 
-	file = os.Getenv("INPUT_FILE")
-	if file == "" {
-		log.Fatal("missing variable INPUT_FILE")
-	}
-
 	gitHubToken = os.Getenv("INPUT_TOKEN")
 	if gitHubToken == "" {
 		log.Fatal("missing variable INPUT_TOKEN")
 	}
+
+	file = os.Getenv("INPUT_FILE")
+	fileUrl = os.Getenv("INPUT_FILE_URL")
+	if file == "" && fileUrl == "" {
+		log.Fatal("missing variable INPUT_FILE or INPUT_FILE_URL")
+	}
 }
 
 func main() {
-	agent.RunAction(semanticEndpoint, gitHubToken, MixpanelToken, rawEvent, file)
+	agent.RunAction(semanticEndpoint, gitHubToken, MixpanelToken, rawEvent, file, fileUrl)
 }
