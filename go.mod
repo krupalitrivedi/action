@@ -5,9 +5,9 @@ go 1.18
 require (
 	github.com/explore-dev/atlas-common/go v0.0.0-20220509090605-a2bc1701df68
 	github.com/google/go-github/v45 v45.2.0
-	github.com/reviewpad/host-event-handler v0.0.3-0.20220811101850-01d4c1faeccb
-	github.com/reviewpad/reviewpad-premium/v3 v3.1.1-0.20220811104432-7d5ff50999e9
-	github.com/reviewpad/reviewpad/v3 v3.1.1-0.20220811095658-7a395e001efb
+	github.com/reviewpad/host-event-handler v0.0.3
+	github.com/reviewpad/reviewpad-premium/v3 v3.2.0
+	github.com/reviewpad/reviewpad/v3 v3.2.0
 	github.com/stretchr/testify v1.8.0
 	google.golang.org/grpc v1.48.0
 )
