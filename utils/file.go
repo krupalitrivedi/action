@@ -12,18 +12,18 @@ import (
 
 	"github.com/google/go-github/v45/github"
 	"github.com/reviewpad/reviewpad/v3"
+	reviewpad_gh "github.com/reviewpad/reviewpad/v3/codehost/github"
 	"github.com/reviewpad/reviewpad/v3/engine"
-	reviewpad_utils "github.com/reviewpad/reviewpad/v3/utils"
 )
 
 const pullRequestFileLimit = 50
 
-func downloadFileFromHost(ctx context.Context, filePath string, client *github.Client, branch *github.PullRequestBranch) ([]byte, error) {
+func downloadFileFromHost(ctx context.Context, filePath string, githubClient *reviewpad_gh.GithubClient, branch *github.PullRequestBranch) ([]byte, error) {
 	branchRepoOwner := *branch.Repo.Owner.Login
 	branchRepoName := *branch.Repo.Name
 	branchRef := *branch.Ref
 
-	ioReader, _, err := client.Repositories.DownloadContents(ctx, branchRepoOwner, branchRepoName, filePath, &github.RepositoryContentGetOptions{
+	ioReader, _, err := githubClient.GetClientREST().Repositories.DownloadContents(ctx, branchRepoOwner, branchRepoName, filePath, &github.RepositoryContentGetOptions{
 		Ref: branchRef,
 	})
 
@@ -34,7 +34,7 @@ func downloadFileFromHost(ctx context.Context, filePath string, client *github.C
 	return ioutil.ReadAll(ioReader)
 }
 
-func LoadReviewpadFile(ctx context.Context, filePath string, client *github.Client, branch *github.PullRequestBranch) (*engine.ReviewpadFile, error) {
+func LoadReviewpadFile(ctx context.Context, filePath string, client *reviewpad_gh.GithubClient, branch *github.PullRequestBranch) (*engine.ReviewpadFile, error) {
 	reviewpadFileContent, err := downloadFileFromHost(ctx, filePath, client, branch)
 	if err != nil {
 		return nil, err
@@ -52,14 +52,14 @@ func LoadReviewpadFile(ctx context.Context, filePath string, client *github.Clie
 // then we download both files using the filePath and check their contents.
 // This strategy assumes that the file path exists in the head branch.
 // Otherwise, we download the pull request files and check the filePath exists in them.
-func ReviewpadFileChanged(ctx context.Context, filePath string, client *github.Client, pullRequest *github.PullRequest) (bool, error) {
+func ReviewpadFileChanged(ctx context.Context, filePath string, githubClient *reviewpad_gh.GithubClient, pullRequest *github.PullRequest) (bool, error) {
 	if *pullRequest.ChangedFiles > pullRequestFileLimit {
-		rawHeadFile, err := downloadFileFromHost(ctx, filePath, client, pullRequest.Head)
+		rawHeadFile, err := downloadFileFromHost(ctx, filePath, githubClient, pullRequest.Head)
 		if err != nil {
 			return false, err
 		}
 
-		rawBaseFile, err := downloadFileFromHost(ctx, filePath, client, pullRequest.Base)
+		rawBaseFile, err := downloadFileFromHost(ctx, filePath, githubClient, pullRequest.Base)
 		if err != nil {
 			if strings.HasPrefix(err.Error(), "no file named") {
 				return true, nil
@@ -74,7 +74,7 @@ func ReviewpadFileChanged(ctx context.Context, filePath string, client *github.C
 	branchRepoOwner := *pullRequest.Base.Repo.Owner.Login
 	branchRepoName := *pullRequest.Base.Repo.Name
 
-	files, err := reviewpad_utils.GetPullRequestFiles(ctx, client, branchRepoOwner, branchRepoName, *pullRequest.Number)
+	files, err := githubClient.GetPullRequestFiles(ctx, branchRepoOwner, branchRepoName, *pullRequest.Number)
 	if err != nil {
 		return false, err
 	}
