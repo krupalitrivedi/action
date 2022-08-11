@@ -7,7 +7,6 @@ package utils
 import (
 	"bytes"
 	"context"
-	"io/ioutil"
 	"strings"
 
 	"github.com/google/go-github/v45/github"
@@ -18,24 +17,8 @@ import (
 
 const pullRequestFileLimit = 50
 
-func downloadFileFromHost(ctx context.Context, filePath string, githubClient *reviewpad_gh.GithubClient, branch *github.PullRequestBranch) ([]byte, error) {
-	branchRepoOwner := *branch.Repo.Owner.Login
-	branchRepoName := *branch.Repo.Name
-	branchRef := *branch.Ref
-
-	ioReader, _, err := githubClient.GetClientREST().Repositories.DownloadContents(ctx, branchRepoOwner, branchRepoName, filePath, &github.RepositoryContentGetOptions{
-		Ref: branchRef,
-	})
-
-	if err != nil {
-		return nil, err
-	}
-
-	return ioutil.ReadAll(ioReader)
-}
-
-func LoadReviewpadFile(ctx context.Context, filePath string, client *reviewpad_gh.GithubClient, branch *github.PullRequestBranch) (*engine.ReviewpadFile, error) {
-	reviewpadFileContent, err := downloadFileFromHost(ctx, filePath, client, branch)
+func LoadReviewpadFile(ctx context.Context, githubClient *reviewpad_gh.GithubClient, filePath string, branch *github.PullRequestBranch) (*engine.ReviewpadFile, error) {
+	reviewpadFileContent, err := githubClient.DownloadContents(ctx, filePath, branch)
 	if err != nil {
 		return nil, err
 	}
@@ -52,14 +35,14 @@ func LoadReviewpadFile(ctx context.Context, filePath string, client *reviewpad_g
 // then we download both files using the filePath and check their contents.
 // This strategy assumes that the file path exists in the head branch.
 // Otherwise, we download the pull request files and check the filePath exists in them.
-func ReviewpadFileChanged(ctx context.Context, filePath string, githubClient *reviewpad_gh.GithubClient, pullRequest *github.PullRequest) (bool, error) {
+func ReviewpadFileChanged(ctx context.Context, githubClient *reviewpad_gh.GithubClient, filePath string, pullRequest *github.PullRequest) (bool, error) {
 	if *pullRequest.ChangedFiles > pullRequestFileLimit {
-		rawHeadFile, err := downloadFileFromHost(ctx, filePath, githubClient, pullRequest.Head)
+		rawHeadFile, err := githubClient.DownloadContents(ctx, filePath, pullRequest.Head)
 		if err != nil {
 			return false, err
 		}
 
-		rawBaseFile, err := downloadFileFromHost(ctx, filePath, githubClient, pullRequest.Base)
+		rawBaseFile, err := githubClient.DownloadContents(ctx, filePath, pullRequest.Base)
 		if err != nil {
 			if strings.HasPrefix(err.Error(), "no file named") {
 				return true, nil
@@ -67,7 +50,7 @@ func ReviewpadFileChanged(ctx context.Context, filePath string, githubClient *re
 			return false, err
 		}
 
-		// TODO: check if this Equal uses the hashes of the files.
+		// FIXME: use the hashes of the files
 		return !bytes.Equal(rawBaseFile, rawHeadFile), nil
 	}
 

@@ -12,7 +12,6 @@ import (
 )
 
 var (
-	semanticEndpoint,
 	rawEvent,
 	file,
 	fileUrl,
@@ -21,11 +20,6 @@ var (
 )
 
 func init() {
-	semanticEndpoint = os.Getenv("SEMANTIC_SERVICE_ENDPOINT")
-	if semanticEndpoint == "" {
-		log.Fatal("missing SEMANTIC_SERVICE_ENDPOINT")
-	}
-
 	rawEvent = os.Getenv("INPUT_EVENT")
 	if rawEvent == "" {
 		log.Fatal("missing variable INPUT_EVENT")
@@ -44,5 +38,5 @@ func init() {
 }
 
 func main() {
-	agent.RunAction(semanticEndpoint, gitHubToken, MixpanelToken, rawEvent, file, fileUrl)
+	agent.RunAction(gitHubToken, MixpanelToken, rawEvent, file, fileUrl)
 }

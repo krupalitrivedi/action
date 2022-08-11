@@ -8,30 +8,27 @@ import (
 	"context"
 	"log"
 	"strings"
+	"time"
 
-	atlas "github.com/explore-dev/atlas-common/go/api/services"
 	"github.com/google/go-github/v45/github"
 	"github.com/reviewpad/action/v3/utils"
 	"github.com/reviewpad/host-event-handler/handler"
-	reviewpad_premium "github.com/reviewpad/reviewpad-premium/v3"
 	"github.com/reviewpad/reviewpad/v3"
 	reviewpad_gh "github.com/reviewpad/reviewpad/v3/codehost/github"
 	"github.com/reviewpad/reviewpad/v3/collector"
 	"github.com/reviewpad/reviewpad/v3/engine"
-	"google.golang.org/grpc"
 )
 
 type Env struct {
-	RepoOwner        string
-	RepoName         string
-	Token            string
-	PRNumber         int
-	SemanticEndpoint string
-	EventPayload     interface{}
+	RepoOwner    string
+	RepoName     string
+	Token        string
+	PRNumber     int
+	EventPayload interface{}
 }
 
 // reviewpad-an: critical
-func runReviewpad(prNum int, e *handler.ActionEvent, semanticEndpoint string, mixpanelToken string, filePath, fileUrl string) {
+func runReviewpad(prNum int, e *handler.ActionEvent, mixpanelToken, filePath, fileUrl string) {
 	repo := *e.Repository
 	splittedRepo := strings.Split(repo, "/")
 	repoOwner := splittedRepo[0]
@@ -44,15 +41,16 @@ func runReviewpad(prNum int, e *handler.ActionEvent, semanticEndpoint string, mi
 	}
 
 	env := &Env{
-		RepoOwner:        repoOwner,
-		RepoName:         repoName,
-		Token:            *e.Token,
-		PRNumber:         prNum,
-		SemanticEndpoint: semanticEndpoint,
-		EventPayload:     eventPayload,
+		RepoOwner:    repoOwner,
+		RepoName:     repoName,
+		Token:        *e.Token,
+		PRNumber:     prNum,
+		EventPayload: eventPayload,
 	}
 
-	ctx := context.Background()
+	ctx, canc := context.WithTimeout(context.Background(), time.Minute*10)
+	defer canc()
+
 	githubClient := reviewpad_gh.NewGithubClientFromToken(ctx, env.Token)
 
 	pullRequest, _, err := githubClient.GetPullRequest(ctx, env.RepoOwner, env.RepoName, env.PRNumber)
@@ -83,22 +81,22 @@ func runReviewpad(prNum int, e *handler.ActionEvent, semanticEndpoint string, mi
 		if err != nil {
 			log.Fatalln(err)
 		}
-		if reviewpadFile, err = utils.LoadReviewpadFile(ctx, filePath, githubClient, branch); err != nil {
+		if reviewpadFile, err = utils.LoadReviewpadFile(ctx, githubClient, filePath, branch); err != nil {
 			log.Fatalln(err)
 		}
 	} else {
 		log.Printf("using local config file %s", filePath)
-		reviewpadFileChanged, err := utils.ReviewpadFileChanged(ctx, filePath, githubClient, pullRequest)
+		reviewpadFileChanged, err := utils.ReviewpadFileChanged(ctx, githubClient, filePath, pullRequest)
 		if err != nil {
 			log.Fatalln(err)
 		}
 
 		if reviewpadFileChanged {
-			if reviewpadFile, err = utils.LoadReviewpadFile(ctx, filePath, githubClient, pullRequest.Head); err != nil {
+			if reviewpadFile, err = utils.LoadReviewpadFile(ctx, githubClient, filePath, pullRequest.Head); err != nil {
 				log.Fatalln(err)
 			}
 		} else {
-			if reviewpadFile, err = utils.LoadReviewpadFile(ctx, filePath, githubClient, pullRequest.Base); err != nil {
+			if reviewpadFile, err = utils.LoadReviewpadFile(ctx, githubClient, filePath, pullRequest.Base); err != nil {
 				log.Fatalln(err)
 			}
 		}
@@ -109,14 +107,7 @@ func runReviewpad(prNum int, e *handler.ActionEvent, semanticEndpoint string, mi
 	baseRepoOwner := *pullRequest.Base.Repo.Owner.Login
 	collectorClient := collector.NewCollector(mixpanelToken, baseRepoOwner)
 
-	var exitStatus engine.ExitStatus
-	switch reviewpadFile.Edition {
-	case engine.PROFESSIONAL_EDITION:
-		exitStatus, err = runReviewpadPremium(ctx, env, githubClient, collectorClient, pullRequest, eventPayload, reviewpadFile, dryRun, reviewpadFileChanged)
-	default:
-		exitStatus, err = reviewpad.Run(ctx, githubClient, collectorClient, pullRequest, eventPayload, reviewpadFile, dryRun, reviewpadFileChanged)
-	}
-
+	exitStatus, err := reviewpad.Run(ctx, githubClient, collectorClient, pullRequest, eventPayload, reviewpadFile, dryRun, reviewpadFileChanged)
 	if err != nil {
 		if reviewpadFile.IgnoreErrors {
 			log.Println(err.Error())
@@ -132,30 +123,7 @@ func runReviewpad(prNum int, e *handler.ActionEvent, semanticEndpoint string, mi
 }
 
 // reviewpad-an: critical
-func runReviewpadPremium(
-	ctx context.Context,
-	env *Env,
-	githubClient *reviewpad_gh.GithubClient,
-	collector collector.Collector,
-	ghPullRequest *github.PullRequest,
-	eventPayload interface{},
-	reviewpadFile *engine.ReviewpadFile,
-	dryRun bool,
-	reviewpadFileChanged bool,
-) (engine.ExitStatus, error) {
-	defaultOptions := grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(419430400))
-	semanticConnection, err := grpc.Dial(env.SemanticEndpoint, grpc.WithInsecure(), defaultOptions)
-	if err != nil {
-		log.Fatalf("failed to dial semantic service: %v", err)
-	}
-	defer semanticConnection.Close()
-	semanticClient := atlas.NewSemanticClient(semanticConnection)
-
-	return reviewpad_premium.Run(ctx, githubClient, collector, semanticClient, ghPullRequest, eventPayload, reviewpadFile, dryRun, reviewpadFileChanged)
-}
-
-// reviewpad-an: critical
-func RunAction(semanticEndpoint, gitHubToken, mixpanelToken, rawEvent, file, fileUrl string) {
+func RunAction(githubToken, mixpanelToken, rawEvent, file, fileUrl string) {
 	event, err := handler.ParseEvent(rawEvent)
 
 	if err != nil {
@@ -169,14 +137,12 @@ func RunAction(semanticEndpoint, gitHubToken, mixpanelToken, rawEvent, file, fil
 		return
 	}
 
-	event.Token = &gitHubToken
+	event.Token = &githubToken
 
 	for _, targetEntity := range targetEntities {
-		switch targetEntity.Kind {
-		case "pull_request":
-			runReviewpad(targetEntity.Number, event, semanticEndpoint, mixpanelToken, file, fileUrl)
-		default:
-			log.Printf("unsupported target entity kind: %s", targetEntity.Kind)
+		// TODO: add support for multiple target entities
+		if targetEntity.Kind == handler.PullRequest {
+			runReviewpad(targetEntity.Number, event, mixpanelToken, file, fileUrl)
 		}
 	}
 }
