@@ -24,22 +24,18 @@ api-version: reviewpad.com/v3.x
 rules:
   - name: is-small
     kind: patch
-    description: small pull request
-    spec: '$size() <= 50'
+    spec: $size() <= 50
 
   - name: is-medium
     kind: patch
-    description: medium-sized pull request
-    spec: '$size() > 50 && $size() <= 150'
+    spec: $size() > 50 && $size() <= 150
 
   - rule: is-large
     kind: patch
-    description: large-sized pull request
-    spec: '$size() > 150'
+    spec: $size() > 150
 
 workflows:
   - name: label-pull-request-with-size
-    description: Label pull request with size
     if:
       - rule: is-small
         extra-actions:
@@ -56,17 +52,28 @@ Specifies a workflow to automatically add a label based on the size of the pull 
 
 For more information on the release procedure, check the [RELEASE.md](./RELEASE.md) document.
 
+____
+
 ## Inputs
 
 - **event**: The GitHub event context that trigger the action. Uses default `${{ toJSON(github) }}`
-- **file**: The location of the Reviewpad configuration file. Uses default `reviewpad.yml`
+- **file**: The local location of the Reviewpad configuration file. Uses default `./reviewpad.yml`. Ignored if `file_url` is set.
+- **file_url** *(OPTIONAL)*: The remote location of the Reviewpad configuration file.
 - **token**: Uses default `${{ github.token }}`
+
+| :question: `file` vs `file_url`                                                                                            |
+| :------------------------------------------------------------------------------------------------------------------------- |
+| Reviewpad action will try to load reviewpad configuration from `file_url`. If **not set** it will try to load from `file`. |
 
 ## Outputs
 
 None.
 
+____
+
 ## Usage examples
+
+### Basic example
 
 **This action can be used with any [event](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows) that triggers a workflow.**
 
@@ -77,6 +84,18 @@ Add the following step to a GitHub Action job:
   uses: reviewpad/action@v3.x
 ```
 
+### :link: Remote reviewpad configuration example
+
+You can run reviewpad action with a remote configuration by setting the input `file_url`:
+
+```yaml
+- name: Run reviewpad action
+  uses: reviewpad/action@v3.x
+  with:
+    file_url: https://github.com/reviewpad/catalog/blob/main/pr-size-labelling.yml
+```
+
+### :key: Github token example
 
 By default this action uses the `github-actions[bot]` PAT.
 
