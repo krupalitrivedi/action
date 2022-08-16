@@ -172,8 +172,11 @@ func RunAction(semanticEndpoint, gitHubToken, mixpanelToken, rawEvent, file, fil
 	event.Token = &gitHubToken
 
 	for _, targetEntity := range targetEntities {
-		if targetEntity.Kind == "PullRequest" {
+		switch targetEntity.Kind {
+		case "pull_request":
 			runReviewpad(targetEntity.Number, event, semanticEndpoint, mixpanelToken, file, fileUrl)
+		default:
+			log.Printf("unsupported target entity kind: %s", targetEntity.Kind)
 		}
 	}
 }
