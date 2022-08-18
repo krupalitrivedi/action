@@ -30,7 +30,7 @@ rules:
     kind: patch
     spec: $size() > 50 && $size() <= 150
 
-  - rule: is-large
+  - name: is-large
     kind: patch
     spec: $size() > 150
 
