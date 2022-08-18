@@ -4,7 +4,7 @@
 
 FROM exploredev/reviewpad:semanticservice-v1.14 as semanticservice
 
-FROM golang:1.18.5-alpine AS build
+FROM golang:1.18.5 AS build
 
 ARG mixpanelToken
 
