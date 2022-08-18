@@ -4,9 +4,7 @@
 
 FROM exploredev/reviewpad:semanticservice-v1.14 as semanticservice
 
-FROM reviewpad/golang-dev:1.17.8-linux-amd64 AS build
-
-ENV GOPRIVATE=github.com/explore-dev,github.com/reviewpad
+FROM golang:1.18.5-alpine AS build
 
 ARG mixpanelToken
 
@@ -27,7 +25,7 @@ FROM gcr.io/distroless/cc:debug
 SHELL ["/busybox/sh", "-c"]
 
 ENV ATLAS_SEMANTIC_PORT="0.0.0.0:3006"
-ENV SEMANTIC_SERVICE_ENDPOINT="0.0.0.0:3006"
+ENV INPUT_SEMANTIC_SERVICE="0.0.0.0:3006"
 
 WORKDIR /app
 
