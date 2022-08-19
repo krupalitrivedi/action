@@ -84,8 +84,8 @@ github.com/reviewpad/go-conventionalcommits v0.10.0 h1:49Fv1q5vougqA7g5mpFZ+W5sQ
 github.com/reviewpad/go-conventionalcommits v0.10.0/go.mod h1:NWUK2G+V+KrhmHW2fBAWGEgZFW8jUXqqBkm9mYJJNi4=
 github.com/reviewpad/host-event-handler v0.0.4-0.20220818140559-eb6cff81bfb6 h1:zcp/AtiWKBf1EkuW9Q4VbjkLW8Md3SsVU6OSFvMA5SA=
 github.com/reviewpad/host-event-handler v0.0.4-0.20220818140559-eb6cff81bfb6/go.mod h1:lkyrxe/9ABQS3uYgPIXVaTcoKZ3sSzURa++qVGL7d3Q=
-github.com/reviewpad/reviewpad/v3 v3.2.1-0.20220818134904-f17983fc3cf1 h1:oyz6Gyx3wKZ9eVSUBVOShw5t1NDEvRNV+YoSHwg8OPw=
-github.com/reviewpad/reviewpad/v3 v3.2.1-0.20220818134904-f17983fc3cf1/go.mod h1:GZfxpLi+FamyqU64tHfitWjEeW4iJ+bouvLtRI6OD9k=
+github.com/reviewpad/reviewpad/v3 v3.2.1-0.20220819080408-a5c9c8027b77 h1:zaHdM3wrtQrmtsEiAJiAolkMu7hPLMqC7GO7rfzQcI0=
+github.com/reviewpad/reviewpad/v3 v3.2.1-0.20220819080408-a5c9c8027b77/go.mod h1:GZfxpLi+FamyqU64tHfitWjEeW4iJ+bouvLtRI6OD9k=
 github.com/rogpeppe/fastuuid v1.2.0/go.mod h1:jVj6XXZzXRy/MSR5jhDC/2q6DgLz+nrA6LYCDYWNEvQ=
 github.com/rogpeppe/go-internal v1.8.1 h1:geMPLpDpQOgVyCg5z5GoRwLHepNdb71NXb67XFkP+Eg=
 github.com/shurcooL/githubv4 v0.0.0-20220520033151-0b4e3294ff00 h1:fiFvD4lT0aWjuuAb64LlZ/67v87m+Kc9Qsu5cMFNK0w=

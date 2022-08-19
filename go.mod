@@ -5,7 +5,7 @@ go 1.18
 require (
 	github.com/google/go-github/v45 v45.2.0
 	github.com/reviewpad/host-event-handler v0.0.4-0.20220818140559-eb6cff81bfb6
-	github.com/reviewpad/reviewpad/v3 v3.2.1-0.20220818134904-f17983fc3cf1
+	github.com/reviewpad/reviewpad/v3 v3.2.1-0.20220819080408-a5c9c8027b77
 	github.com/stretchr/testify v1.8.0
 )
 
