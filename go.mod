@@ -5,7 +5,7 @@ go 1.18
 require (
 	github.com/google/go-github/v45 v45.2.0
 	github.com/reviewpad/host-event-handler v0.0.4-0.20220818140559-eb6cff81bfb6
-	github.com/reviewpad/reviewpad/v3 v3.2.1-0.20220819080408-a5c9c8027b77
+	github.com/reviewpad/reviewpad/v3 v3.2.1-0.20220822090813-d04b4a4f395b
 	github.com/stretchr/testify v1.8.0
 )
 
@@ -21,7 +21,7 @@ require (
 	github.com/migueleliasweb/go-github-mock v0.0.10 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
-	github.com/reviewpad/api/go v0.0.0-20220816114724-46d21cde564a // indirect
+	github.com/reviewpad/api/go v0.0.0-20220822084656-a70503c7406c // indirect
 	github.com/reviewpad/go-conventionalcommits v0.10.0 // indirect
 	github.com/shurcooL/githubv4 v0.0.0-20220520033151-0b4e3294ff00 // indirect
 	github.com/shurcooL/graphql v0.0.0-20220606043923-3cf50f8a0a29 // indirect
