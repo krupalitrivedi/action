@@ -8,7 +8,22 @@ FROM golang:1.18.5 AS build
 
 ARG mixpanelToken
 
+ENV LIBGIT2_ZIP v1.2.0.zip
+ENV LIBGIT2 libgit2-1.2.0
+
 WORKDIR /service
+
+# Install necessary packages
+RUN apt-get update && apt-get -y install unzip cmake libssl-dev && apt-get clean
+
+# Install libgit2
+RUN curl -OL https://github.com/libgit2/libgit2/archive/refs/tags/${LIBGIT2_ZIP} && \
+    unzip -o $LIBGIT2_ZIP -d /tmp && \
+    cd /tmp/${LIBGIT2} && \
+    mkdir build && \
+    cd build && \
+    cmake .. && \
+    cmake --build . --target install
 
 # Download the dependencies as a separate, cacheable step
 COPY ./go.mod .
@@ -33,6 +48,7 @@ WORKDIR /app
 COPY --from=semanticservice /semantic-server /app/semantic-server
 
 COPY --from=build /service/action /app/action
+COPY --from=build /usr/local/lib/ /lib/
 
 COPY ./run.sh .
 RUN chmod +x /app/run.sh

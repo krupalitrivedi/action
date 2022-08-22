@@ -5,7 +5,7 @@ go 1.18
 require (
 	github.com/google/go-github/v45 v45.2.0
 	github.com/reviewpad/host-event-handler v0.0.4-0.20220818140559-eb6cff81bfb6
-	github.com/reviewpad/reviewpad/v3 v3.2.1-0.20220822090813-d04b4a4f395b
+	github.com/reviewpad/reviewpad/v3 v3.2.1-0.20220822091144-8c9f17572154
 	github.com/stretchr/testify v1.8.0
 )
 
@@ -18,6 +18,7 @@ require (
 	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/gorilla/mux v1.8.0 // indirect
+	github.com/libgit2/git2go/v31 v31.7.9 // indirect
 	github.com/migueleliasweb/go-github-mock v0.0.10 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
