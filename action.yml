@@ -26,4 +26,4 @@ inputs:
     required: false
 runs:
   using: "docker"
-  image: "docker://reviewpad/action:v3.x"
+  image: "docker://reviewpad/action-dev:dev_rebase"
