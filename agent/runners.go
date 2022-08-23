@@ -13,11 +13,11 @@ import (
 
 	"github.com/google/go-github/v45/github"
 	"github.com/reviewpad/action/v3/utils"
-	"github.com/reviewpad/host-event-handler/handler"
 	"github.com/reviewpad/reviewpad/v3"
 	reviewpad_gh "github.com/reviewpad/reviewpad/v3/codehost/github"
 	"github.com/reviewpad/reviewpad/v3/collector"
 	"github.com/reviewpad/reviewpad/v3/engine"
+	"github.com/reviewpad/reviewpad/v3/handler"
 )
 
 // reviewpad-an: critical
