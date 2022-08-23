@@ -25,7 +25,7 @@ jobs:
         uses: reviewpad/action@canary
 ```
 
-We use [semantic versioning](https://semver.org/) for the main Go executable. Its release occurs in the commits with the message `Update reviewpad to vX.Y.Z` (e.g. [v1.0.0](https://github.com/reviewpad/action/commit/bb1d889ac9ef53627ff0eaae48ee242994b32811)).
+We use [semantic versioning](https://semver.org/) for the main Go executable. Its release occurs in the commits with the message `build: update reviewpad to vX.Y.Z` (e.g. [v1.0.0](https://github.com/reviewpad/action/commit/bb1d889ac9ef53627ff0eaae48ee242994b32811)).
 
 The process of that release is manually done by an official Reviewpad contributor and amounts to tag the commit image with the semantic version and push it.
 
